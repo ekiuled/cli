@@ -14,11 +14,11 @@ class Command(ABC):
     """Базовый класс всех команд."""
 
     @abstractmethod
-    def call(self,
-             inp: TextIO,
-             out: TextIO,
-             err: TextIO,
-             args: List[str]) -> ExitCode:
+    def __call__(self,
+                 inp: TextIO,
+                 out: TextIO,
+                 err: TextIO,
+                 args: List[str]) -> ExitCode:
         """Вызов команды.
 
         :param inp: входной поток
@@ -58,11 +58,11 @@ class Cat(Command):
             print(f'cat: {filename}: No such file or directory', file=err)
             return FAIL
 
-    def call(self,
-             inp: TextIO,
-             out: TextIO,
-             err: TextIO,
-             args: List[str]) -> ExitCode:
+    def __call__(self,
+                 inp: TextIO,
+                 out: TextIO,
+                 err: TextIO,
+                 args: List[str]) -> ExitCode:
         if not args:
             self.cat(inp, out)
             return SUCCESS
@@ -79,11 +79,11 @@ class Cat(Command):
 class Echo(Command):
     """Выводит на экран свои аргументы."""
 
-    def call(self,
-             inp: TextIO,
-             out: TextIO,
-             err: TextIO,
-             args: List[str]) -> ExitCode:
+    def __call__(self,
+                 inp: TextIO,
+                 out: TextIO,
+                 err: TextIO,
+                 args: List[str]) -> ExitCode:
         print(*args, file=out)
         return SUCCESS
 
@@ -121,11 +121,11 @@ class Wc(Command):
             print(f'wc: {filename}: No such file or directory', file=err)
             return (0, 0, 0), FAIL
 
-    def call(self,
-             inp: TextIO,
-             out: TextIO,
-             err: TextIO,
-             args: List[str]) -> ExitCode:
+    def __call__(self,
+                 inp: TextIO,
+                 out: TextIO,
+                 err: TextIO,
+                 args: List[str]) -> ExitCode:
         if not args:
             print(*self.wc(inp), file=out, sep='\t')
             return SUCCESS
@@ -150,11 +150,11 @@ class Wc(Command):
 class Pwd(Command):
     """Выводит текущую директорию."""
 
-    def call(self,
-             inp: TextIO,
-             out: TextIO,
-             err: TextIO,
-             args: List[str]) -> ExitCode:
+    def __call__(self,
+                 inp: TextIO,
+                 out: TextIO,
+                 err: TextIO,
+                 args: List[str]) -> ExitCode:
         print(getcwd(), file=out)
         return SUCCESS
 
@@ -162,11 +162,11 @@ class Pwd(Command):
 class Exit(Command):
     """Выходит из интерпретатора."""
 
-    def call(self,
-             inp: TextIO,
-             out: TextIO,
-             err: TextIO,
-             args: List[str]) -> ExitCode:
+    def __call__(self,
+                 inp: TextIO,
+                 out: TextIO,
+                 err: TextIO,
+                 args: List[str]) -> ExitCode:
         sys.exit()
 
 
@@ -176,11 +176,11 @@ class External(Command):
     def __init__(self, command: str) -> None:
         self.command = command
 
-    def call(self,
-             inp: TextIO,
-             out: TextIO,
-             err: TextIO,
-             args: List[str]) -> ExitCode:
+    def __call__(self,
+                 inp: TextIO,
+                 out: TextIO,
+                 err: TextIO,
+                 args: List[str]) -> ExitCode:
         try:
             ret = subprocess.call([self.command, *args],
                                   stdin=inp, stdout=out, stderr=err)
