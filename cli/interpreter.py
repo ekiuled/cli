@@ -14,6 +14,8 @@ commands = {'cat': Cat(),
 
 
 def run(line: str) -> ExitCode:
+    """Выполняет одну строку: команду или пайплайн."""
+
     pipeline = parse(line)
 
     if not pipeline:

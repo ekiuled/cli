@@ -7,3 +7,5 @@ Software Design homework: Command Line Interface.
 ## TODO
 
 - Variables
+- External processes
+- Quotes

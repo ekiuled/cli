@@ -10,12 +10,22 @@ FAIL = ExitCode(1)
 
 
 class Command(ABC):
+    """Базовый класс всех команд."""
+
     @abstractmethod
     def call(self,
              inp: TextIO,
              out: TextIO,
              err: TextIO,
              args: List[str]) -> ExitCode:
+        """Вызов команды.
+
+        :param inp: входной поток
+        :param out: выходной поток
+        :param err: поток ошибок
+        :param args: агрументы команды
+        :returns: код завершения команды
+        """
         pass
 
 
@@ -23,6 +33,8 @@ class Cat(Command):
     """Выводит содержимое файла на экран."""
 
     def cat(self, fd: TextIO, out: TextIO) -> None:
+        """Выводит содержимое потока `fd` в поток `out`."""
+
         for line in fd:
             print(line, file=out, end='')
 
@@ -30,6 +42,13 @@ class Cat(Command):
                 filename: str,
                 out: TextIO,
                 err: TextIO) -> ExitCode:
+        """
+        Выводит содержимое файла `filename`, если он существует,
+        в поток `out` и возвращает `SUCCESS`. 
+        В противном случае сообщает об ошибке в поток `err` 
+        и возвращает `FAIL`.
+        """
+
         try:
             with open(filename) as fd:
                 self.cat(fd, out)
@@ -72,6 +91,8 @@ class Wc(Command):
     """Выводит количество строк, слов и байт в файле."""
 
     def wc(self, fd: TextIO) -> tuple:
+        """Возвращает количество строк, слов и байт в потоке `fd`."""
+
         nl, words, byte = 0, 0, 0
         for line in fd:
             nl += 1
@@ -83,6 +104,13 @@ class Wc(Command):
                filename: str,
                out: TextIO,
                err: TextIO) -> Tuple[tuple, ExitCode]:
+        """
+        Выводит количество строк, слов и байт в файле `filename`, 
+        если он существует, в поток `out` и возвращает их вместе с `SUCCESS`. 
+        В противном случае сообщает об ошибке в поток `err` 
+        и возвращает `FAIL`.
+        """
+
         try:
             with open(filename) as fd:
                 counts = self.wc(fd)
