@@ -1,4 +1,3 @@
-import pytest
 from cli.interpreter import run
 from cli.commands import SUCCESS, FAIL
 
