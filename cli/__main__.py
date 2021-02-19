@@ -1,9 +1,16 @@
 from cli.interpreter import run
 
+
+GREEN = '1;32;48m'
+RED = '1;31;48m'
+colors = [GREEN, RED]
+
+
 try:
+    color = GREEN
     while True:
-        print('> ', end='')
+        print(f'\033[{color}> \033[00m', end='')
         line = input()
-        run(line)
+        color = colors[run(line)]
 except EOFError:
     pass
