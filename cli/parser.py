@@ -1,7 +1,8 @@
 from typing import NamedTuple
 
 
-CommandArgs = NamedTuple('CommandArgs', [('command', str), ('args', list[str])])
+CommandArgs = NamedTuple('CommandArgs',
+                         [('command', str), ('args', list[str])])
 
 
 def parse(line: str) -> list[CommandArgs]:

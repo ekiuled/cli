@@ -1,5 +1,5 @@
 from collections import defaultdict
-from cli.commands import *
+from cli.commands import ExitCode, SUCCESS, Cat, Echo, Wc, Pwd, Exit
 from cli.parser import parse
 import sys
 import os

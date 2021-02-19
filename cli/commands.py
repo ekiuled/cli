@@ -11,7 +11,11 @@ FAIL = ExitCode(1)
 
 class Command(ABC):
     @abstractmethod
-    def call(self, inp: TextIO, out: TextIO, err: TextIO, args: List[str]) -> ExitCode:
+    def call(self,
+             inp: TextIO,
+             out: TextIO,
+             err: TextIO,
+             args: List[str]) -> ExitCode:
         pass
 
 
@@ -22,7 +26,10 @@ class Cat(Command):
         for line in fd:
             print(line, file=out, end='')
 
-    def catFile(self, filename: str, out: TextIO, err: TextIO) -> ExitCode:
+    def catFile(self,
+                filename: str,
+                out: TextIO,
+                err: TextIO) -> ExitCode:
         try:
             with open(filename) as fd:
                 self.cat(fd, out)
@@ -31,7 +38,11 @@ class Cat(Command):
             print(f'cat: {filename}: No such file or directory', file=err)
             return FAIL
 
-    def call(self, inp: TextIO, out: TextIO, err: TextIO, args: List[str]) -> ExitCode:
+    def call(self,
+             inp: TextIO,
+             out: TextIO,
+             err: TextIO,
+             args: List[str]) -> ExitCode:
         if not args:
             self.cat(inp, out)
             return SUCCESS
@@ -48,7 +59,11 @@ class Cat(Command):
 class Echo(Command):
     """Выводит на экран свои аргументы."""
 
-    def call(self, inp: TextIO, out: TextIO, err: TextIO, args: List[str]) -> ExitCode:
+    def call(self,
+             inp: TextIO,
+             out: TextIO,
+             err: TextIO,
+             args: List[str]) -> ExitCode:
         print(*args, file=out)
         return SUCCESS
 
@@ -64,7 +79,10 @@ class Wc(Command):
             byte += len(line.encode('utf-8'))
         return nl, words, byte
 
-    def wcFile(self, filename: str, out: TextIO, err: TextIO) -> Tuple[tuple, ExitCode]:
+    def wcFile(self,
+               filename: str,
+               out: TextIO,
+               err: TextIO) -> Tuple[tuple, ExitCode]:
         try:
             with open(filename) as fd:
                 counts = self.wc(fd)
@@ -74,7 +92,11 @@ class Wc(Command):
             print(f'wc: {filename}: No such file or directory', file=err)
             return None, FAIL
 
-    def call(self, inp: TextIO, out: TextIO, err: TextIO, args: List[str]) -> ExitCode:
+    def call(self,
+             inp: TextIO,
+             out: TextIO,
+             err: TextIO,
+             args: List[str]) -> ExitCode:
         if not args:
             print(*self.wc(inp), file=out, sep='\t')
             return SUCCESS
@@ -99,7 +121,11 @@ class Wc(Command):
 class Pwd(Command):
     """Выводит текущую директорию."""
 
-    def call(self, inp: TextIO, out: TextIO, err: TextIO, args: List[str]) -> ExitCode:
+    def call(self,
+             inp: TextIO,
+             out: TextIO,
+             err: TextIO,
+             args: List[str]) -> ExitCode:
         print(getcwd(), file=out)
         return SUCCESS
 
@@ -107,5 +133,9 @@ class Pwd(Command):
 class Exit(Command):
     """Выходит из интерпретатора."""
 
-    def call(self, inp: TextIO, out: TextIO, err: TextIO, args: List[str]) -> ExitCode:
+    def call(self,
+             inp: TextIO,
+             out: TextIO,
+             err: TextIO,
+             args: List[str]) -> ExitCode:
         sys.exit()
