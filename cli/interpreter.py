@@ -16,8 +16,6 @@ commands = {'cat': Cat(),
 def run(line: str) -> ExitCode:
     pipeline = parse(line)
 
-    print(pipeline)
-
     if not pipeline:
         return SUCCESS
 
