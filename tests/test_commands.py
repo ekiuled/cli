@@ -3,34 +3,30 @@ from cli.commands import SUCCESS, FAIL
 
 
 def test_cat(capsys):
-    exitCode = run('cat LICENSE kek')
+    assert run('cat LICENSE kek') == FAIL
     out, err = capsys.readouterr()
-    assert exitCode == FAIL
     assert out.startswith('MIT License')
     assert err == 'cat: kek: No such file or directory\n'
 
 
 def test_echo(capsys):
-    exitCode = run('echo Hello,            world!')
+    assert run('echo Hello,            world!') == SUCCESS
     out, err = capsys.readouterr()
-    assert exitCode == SUCCESS
     assert out == 'Hello, world!\n'
     assert err == ''
 
 
 def test_wc(capsys):
-    exitCode = run('wc LICENSE .gitignore kek')
+    assert run('wc LICENSE .gitignore kek') == FAIL
     out, err = capsys.readouterr()
-    assert exitCode == FAIL
     assert out.startswith('21\t169\t1075\tLICENSE')
     assert out.endswith('150\t397\t2874\ttotal\n')
     assert err == 'wc: kek: No such file or directory\n'
 
 
 def test_pwd(capsys):
-    exitCode = run('pwd')
+    assert run('pwd') == SUCCESS
     out, err = capsys.readouterr()
-    assert exitCode == SUCCESS
     assert out.endswith('cli\n')
     assert err == ''
 
@@ -38,6 +34,5 @@ def test_pwd(capsys):
 def test_external(pytestconfig):
     capmanager = pytestconfig.pluginmanager.getplugin('capturemanager')
     capmanager.suspend_global_capture(in_=True)
-    exitCode = run('flake8')
-    assert exitCode == SUCCESS
+    assert run('flake8') == SUCCESS
     capmanager.resume_global_capture()

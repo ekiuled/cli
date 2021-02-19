@@ -1,19 +1,23 @@
-from collections import defaultdict
 from cli.commands import (ExitCode, SUCCESS,
                           Command, Cat, Echo, Wc, Pwd, Exit, External)
 from cli.parser import parse
+from typing import TextIO, List
 import sys
 from os import pipe
 
 
-environment = defaultdict(str)
+environment = dict()
 
 
-def assignment(inp, out, err, variable: str, value: str) -> ExitCode:
+def assignment(inp: TextIO,
+               out: TextIO,
+               err: TextIO,
+               args: List[str]) -> ExitCode:
     """
     Выполняет присваивание значения переменной.
     Игнорирует параметры-потоки ввода/вывода.
     """
+    variable, value = args
     environment[variable] = value
     return SUCCESS
 
@@ -35,7 +39,7 @@ def get_command(command: str) -> Command:
 def run(line: str) -> ExitCode:
     """Выполняет одну строку: команду или пайплайн."""
 
-    pipeline = parse(line)
+    pipeline = parse(line, environment)
 
     if not pipeline:
         return SUCCESS
