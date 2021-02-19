@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import TextIO, NewType, Tuple, List
 import sys
 from os import getcwd
+import subprocess
 
 
 ExitCode = NewType('ExitCode', int)
@@ -44,8 +45,8 @@ class Cat(Command):
                 err: TextIO) -> ExitCode:
         """
         Выводит содержимое файла `filename`, если он существует,
-        в поток `out` и возвращает `SUCCESS`. 
-        В противном случае сообщает об ошибке в поток `err` 
+        в поток `out` и возвращает `SUCCESS`.
+        В противном случае сообщает об ошибке в поток `err`
         и возвращает `FAIL`.
         """
 
@@ -105,9 +106,9 @@ class Wc(Command):
                out: TextIO,
                err: TextIO) -> Tuple[tuple, ExitCode]:
         """
-        Выводит количество строк, слов и байт в файле `filename`, 
-        если он существует, в поток `out` и возвращает их вместе с `SUCCESS`. 
-        В противном случае сообщает об ошибке в поток `err` 
+        Выводит количество строк, слов и байт в файле `filename`,
+        если он существует, в поток `out` и возвращает их вместе с `SUCCESS`.
+        В противном случае сообщает об ошибке в поток `err`
         и возвращает `FAIL`.
         """
 
@@ -167,3 +168,24 @@ class Exit(Command):
              err: TextIO,
              args: List[str]) -> ExitCode:
         sys.exit()
+
+
+class External(Command):
+    """Вызывает внешнюю команду."""
+
+    def __init__(self, command: str) -> None:
+        self.command = command
+
+    def call(self,
+             inp: TextIO,
+             out: TextIO,
+             err: TextIO,
+             args: List[str]) -> ExitCode:
+        try:
+            ret = subprocess.call([self.command, *args],
+                                  stdin=inp, stdout=out, stderr=err)
+            return ret
+        except KeyboardInterrupt:
+            return SUCCESS
+        except Exception:
+            return FAIL

@@ -33,3 +33,11 @@ def test_pwd(capsys):
     assert exitCode == SUCCESS
     assert out.endswith('cli\n')
     assert err == ''
+
+
+def test_external(pytestconfig):
+    capmanager = pytestconfig.pluginmanager.getplugin('capturemanager')
+    capmanager.suspend_global_capture(in_=True)
+    exitCode = run('flake8')
+    assert exitCode == SUCCESS
+    capmanager.resume_global_capture()
