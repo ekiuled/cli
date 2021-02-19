@@ -90,7 +90,7 @@ class Wc(Command):
                 return counts, SUCCESS
         except IOError:
             print(f'wc: {filename}: No such file or directory', file=err)
-            return None, FAIL
+            return (0, 0, 0), FAIL
 
     def call(self,
              inp: TextIO,
