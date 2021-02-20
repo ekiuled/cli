@@ -1,5 +1,5 @@
 from cli.interpreter import run
-from cli.commands import SUCCESS  # , FAIL
+from cli.commands import SUCCESS
 
 
 def test_var_echo(capsys):
@@ -16,4 +16,31 @@ def test_var_cat(capsys):
     assert run('cat LIC$a$b | wc') == SUCCESS
     out, err = capsys.readouterr()
     assert out == '21\t169\t1075\n'
+    assert err == ''
+
+
+def test_command_var(capsys):
+    assert run('c=echo') == SUCCESS
+    assert run('b=on') == SUCCESS
+    assert run('$c pyth$b') == SUCCESS
+    out, err = capsys.readouterr()
+    assert out == 'python\n'
+    assert err == ''
+
+
+def test_quotes_cat(capsys):
+    assert run('a=LICENSE') == SUCCESS
+    assert run('b=README.md') == SUCCESS
+    assert run('cat "$a" \'$b\' | wc') == SUCCESS
+    out, err = capsys.readouterr()
+    assert out == '21\t169\t1075\n'
+    assert err == 'cat: $b: No such file or directory\n'
+
+
+def test_quotes_echo(capsys):
+    assert run('a=aa') == SUCCESS
+    assert run('b=bb') == SUCCESS
+    assert run('echo "$a  $b" \' $b\'') == SUCCESS
+    out, err = capsys.readouterr()
+    assert out == 'aa  bb  $b\n'
     assert err == ''

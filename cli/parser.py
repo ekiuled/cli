@@ -19,8 +19,15 @@ def name_args(command: str, environment: Dict[str, str]) -> CommandArgs:
         value = variable_expansion(match.group(2), environment)
         return '=', [variable, value]
 
-    name, *args = map(lambda s: variable_expansion(s, environment),
-                      command.split())
+    words = []
+    for match in re.findall(r'([^\s"\']+)|"([^"]*)"|\'([^\']*)\'', command):
+        if match[2]:
+            words.append(match[2])
+        else:
+            word = max(match)
+            words.append(variable_expansion(word, environment))
+
+    name, *args = words
     return name, args
 
 

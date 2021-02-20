@@ -6,6 +6,5 @@ Software Design homework: Command Line Interface.
 
 ## TODO
 
-- Quotes
 - README
 - Bazel
