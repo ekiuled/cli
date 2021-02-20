@@ -7,7 +7,9 @@ CommandArgs = NamedTuple('CommandArgs',
 
 
 def variable_expansion(word: str, environment: Dict[str, str]) -> str:
-    return re.sub(r'\$([^$\s]+)', lambda s: environment[s.group(1)], word)
+    return re.sub(r'\$([^$\s]+)',
+                  lambda s: environment.get(s.group(1), ''),
+                  word)
 
 
 def name_args(command: str, environment: Dict[str, str]) -> CommandArgs:

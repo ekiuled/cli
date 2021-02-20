@@ -40,7 +40,7 @@ def test_quotes_cat(capsys):
 def test_quotes_echo(capsys):
     assert run('a=aa') == SUCCESS
     assert run('b=bb') == SUCCESS
-    assert run('echo "$a  $b" \' $b\'') == SUCCESS
+    assert run('echo "$a  $b$d" \' $b\'') == SUCCESS
     out, err = capsys.readouterr()
     assert out == 'aa  bb  $b\n'
     assert err == ''
