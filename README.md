@@ -6,5 +6,6 @@ Software Design homework: Command Line Interface.
 
 ## TODO
 
-- Variables
 - Quotes
+- README
+- Bazel
