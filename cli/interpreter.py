@@ -1,5 +1,5 @@
 from cli.commands import (ExitCode, SUCCESS,
-                          Command, Cat, Echo, Wc, Pwd, Exit, External)
+                          Command, Cat, Echo, Wc, Pwd, Grep, Exit, External)
 from cli.parser import parse
 from typing import TextIO, List
 import sys
@@ -26,6 +26,7 @@ commands = {'cat': Cat(),
             'echo': Echo(),
             'wc': Wc(),
             'pwd': Pwd(),
+            'grep': Grep(),
             'exit': Exit(),
             '=': assignment}
 

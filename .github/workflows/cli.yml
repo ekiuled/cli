@@ -5,7 +5,7 @@ name: cli
 
 on:
   push:
-    branches: [ main, dev ]
+    branches: [ main, dev, dev-2 ]
   pull_request:
     branches: [ main ]
 
