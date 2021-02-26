@@ -44,3 +44,19 @@ def test_quotes_echo(capsys):
     out, err = capsys.readouterr()
     assert out == 'aa  bb  $b\n'
     assert err == ''
+
+
+def test_assignment_quotes(capsys):
+    assert run('c=123') == SUCCESS
+    assert run('b="a\'$c\'e "') == SUCCESS
+    assert run('echo "$b"') == SUCCESS
+    out, err = capsys.readouterr()
+    assert out == "a'123'e \n"
+    assert err == ''
+
+    assert run('c=123') == SUCCESS
+    assert run('b=\'a"$c"e \'') == SUCCESS
+    assert run('echo "$b"') == SUCCESS
+    out, err = capsys.readouterr()
+    assert out == 'a"$c"e \n'
+    assert err == ''

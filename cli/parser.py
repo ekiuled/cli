@@ -1,4 +1,4 @@
-from typing import NamedTuple, Dict
+from typing import NamedTuple, Dict, Generator
 import re
 
 
@@ -7,31 +7,38 @@ CommandArgs = NamedTuple('CommandArgs',
 
 
 def variable_expansion(word: str, environment: Dict[str, str]) -> str:
-    return re.sub(r'\$([^$\s]+)',
+    """Подставляет значения из окружения вместо переменных."""
+
+    return re.sub(r'\$([^$\s\'"]+)',
                   lambda s: environment.get(s.group(1), ''),
                   word)
 
 
-def name_args(command: str, environment: Dict[str, str]) -> CommandArgs:
-    """Достаёт имя и аргументы из одной команды."""
+def get_words(string: str,
+              environment: Dict[str, str]) -> Generator[str, None, None]:
+    """Разбивает строку на слова и подставляет переменные."""
 
-    match = re.fullmatch(r'(\S+)=(\S*)', command)
-    if match:
-        variable = match.group(1)
-        value = variable_expansion(match.group(2), environment)
-        return '=', [variable, value]
-
-    words = []
-    for match in re.findall(r'([^\s"\']+)|"([^"]*)"|\'([^\']*)\'', command):
+    for match in re.findall(r'([^\s"\']+)|"([^"]*)"|\'([^\']*)\'', string):
         single_quoted_word = match[2]
         if single_quoted_word:
-            words.append(single_quoted_word)
+            yield single_quoted_word
         else:
             word = max(match)
-            words.append(variable_expansion(word, environment))
+            yield variable_expansion(word, environment)
 
-    name, *args = words
-    return name, args
+
+def name_args(command: str, environment: Dict[str, str]) -> CommandArgs:
+    """Достаёт имя команды и её аргументы."""
+
+    match = re.fullmatch(r'(\S+)=([^\s"\']+|"[^"]*"|\'[^\']*\')', command)
+    if match:
+        variable = match.group(1)
+        value = match.group(2)
+        value = next(get_words(value, environment))
+        return CommandArgs('=', [variable, value])
+
+    name, *args = list(get_words(command, environment))
+    return CommandArgs(name, args)
 
 
 def parse(line: str, environment: Dict[str, str]) -> list[CommandArgs]:
