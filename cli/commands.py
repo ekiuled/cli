@@ -206,15 +206,15 @@ class Grep(Command):
 
         return exitCode
 
-    def grepFile(self,
-                 pattern: str,
-                 case_insensitive: bool,
-                 whole_word: bool,
-                 context: int,
-                 filename: str,
-                 out: TextIO,
-                 err: TextIO,
-                 prefix: str = '') -> ExitCode:
+    def grep_file(self,
+                  pattern: str,
+                  case_insensitive: bool,
+                  whole_word: bool,
+                  context: int,
+                  filename: str,
+                  out: TextIO,
+                  err: TextIO,
+                  prefix: str = '') -> ExitCode:
         """
         Выводит содержащие `pattern` строки файла `filename`,
         если он существует, в поток `out` и возвращает `SUCCESS`,
@@ -270,17 +270,17 @@ class Grep(Command):
 
         if len(args) == 1:
             filename = args[0]
-            return self.grepFile(pattern,
-                                 case_insensitive, whole_word, context,
-                                 filename, out, err)
+            return self.grep_file(pattern,
+                                  case_insensitive, whole_word, context,
+                                  filename, out, err)
 
         exitCode = SUCCESS
 
         for filename in args:
-            ret = self.grepFile(pattern,
-                                case_insensitive, whole_word, context,
-                                filename, out, err,
-                                f'{filename}:')
+            ret = self.grep_file(pattern,
+                                 case_insensitive, whole_word, context,
+                                 filename, out, err,
+                                 f'{filename}:')
             exitCode = max(exitCode, ret)
 
         return exitCode
