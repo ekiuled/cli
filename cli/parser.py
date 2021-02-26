@@ -23,8 +23,9 @@ def name_args(command: str, environment: Dict[str, str]) -> CommandArgs:
 
     words = []
     for match in re.findall(r'([^\s"\']+)|"([^"]*)"|\'([^\']*)\'', command):
-        if match[2]:
-            words.append(match[2])
+        single_quoted_word = match[2]
+        if single_quoted_word:
+            words.append(single_quoted_word)
         else:
             word = max(match)
             words.append(variable_expansion(word, environment))
