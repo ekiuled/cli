@@ -39,10 +39,10 @@ class Cat(Command):
         for line in fd:
             print(line, file=out, end='')
 
-    def catFile(self,
-                filename: str,
-                out: TextIO,
-                err: TextIO) -> ExitCode:
+    def cat_file(self,
+                 filename: str,
+                 out: TextIO,
+                 err: TextIO) -> ExitCode:
         """
         Выводит содержимое файла `filename`, если он существует,
         в поток `out` и возвращает `SUCCESS`.
@@ -70,7 +70,7 @@ class Cat(Command):
         exitCode = SUCCESS
 
         for filename in args:
-            ret = self.catFile(filename, out, err)
+            ret = self.cat_file(filename, out, err)
             exitCode = max(exitCode, ret)
 
         return exitCode
@@ -101,10 +101,10 @@ class Wc(Command):
             byte += len(line.encode('utf-8'))
         return nl, words, byte
 
-    def wcFile(self,
-               filename: str,
-               out: TextIO,
-               err: TextIO) -> Tuple[tuple, ExitCode]:
+    def wc_file(self,
+                filename: str,
+                out: TextIO,
+                err: TextIO) -> Tuple[tuple, ExitCode]:
         """
         Выводит количество строк, слов и байт в файле `filename`,
         если он существует, в поток `out` и возвращает их вместе с `SUCCESS`.
@@ -132,14 +132,14 @@ class Wc(Command):
 
         if len(args) == 1:
             filename = args[0]
-            _, exitCode = self.wcFile(filename, out, err)
+            _, exitCode = self.wc_file(filename, out, err)
             return exitCode
 
         exitCode = SUCCESS
         total = (0, 0, 0)
 
         for filename in args:
-            counts, ret = self.wcFile(filename, out, err)
+            counts, ret = self.wc_file(filename, out, err)
             exitCode = max(exitCode, ret)
             total = tuple(map(sum, zip(total, counts)))
         print(*total, 'total', file=out, sep='\t')
@@ -182,9 +182,10 @@ class External(Command):
                  err: TextIO,
                  args: List[str]) -> ExitCode:
         try:
-            ret = subprocess.call([self.command, *args],
-                                  stdin=inp, stdout=out, stderr=err)
-            return ret
+            return ExitCode(subprocess.call([self.command, *args],
+                                            stdin=inp,
+                                            stdout=out,
+                                            stderr=err))
         except KeyboardInterrupt:
             return SUCCESS
         except Exception:
