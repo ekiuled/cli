@@ -44,5 +44,5 @@ def name_args(command: str, environment: Dict[str, str]) -> CommandArgs:
 def parse(line: str, environment: Dict[str, str]) -> list[CommandArgs]:
     """Парсит строку в список команд и их аргументов."""
 
-    commands = re.split(r'\s+\|\s+', line.strip())
+    commands = filter(None, re.split(r'\s+\|\s+', line.strip()))
     return [name_args(command, environment) for command in commands]

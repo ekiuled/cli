@@ -3,6 +3,7 @@ from typing import TextIO, NewType, Tuple, List
 import sys
 from os import getcwd
 import subprocess
+import re
 
 
 ExitCode = NewType('ExitCode', int)
@@ -157,6 +158,132 @@ class Pwd(Command):
                  args: List[str]) -> ExitCode:
         print(getcwd(), file=out)
         return SUCCESS
+
+
+class Grep(Command):
+    """Ищет паттерн в файлах или входном потоке."""
+
+    def match(self,
+              pattern: str,
+              case_insensitive: bool,
+              whole_word: bool,
+              line: str) -> bool:
+        """Проверяет, подходит ли строка под паттерн."""
+
+        if whole_word:
+            pattern = fr'\b{pattern}\b'
+        if case_insensitive:
+            return re.search(pattern, line, re.IGNORECASE) is not None
+        return re.search(pattern, line) is not None
+
+    def grep(self,
+             pattern: str,
+             case_insensitive: bool,
+             whole_word: bool,
+             context: int,
+             fd: TextIO,
+             out: TextIO,
+             prefix: str = '') -> ExitCode:
+        """
+        Выводит строки потока `fd`, содержащие `pattern`, в поток `out`.
+        Возвращает SUCCESS, если выведена хотя бы одна строка.
+        """
+
+        exitCode = FAIL
+        context_counter = 0
+
+        for line in fd:
+            context_counter -= 1
+
+            if self.match(pattern, case_insensitive, whole_word, line):
+                if context and not exitCode and context_counter < 0:
+                    print('--', file=out)
+                exitCode = SUCCESS
+                context_counter = context + 1
+
+            if context_counter > 0:
+                print(f'{prefix}{line}', file=out, end='')
+
+        return exitCode
+
+    def grep_file(self,
+                  pattern: str,
+                  case_insensitive: bool,
+                  whole_word: bool,
+                  context: int,
+                  filename: str,
+                  out: TextIO,
+                  err: TextIO,
+                  prefix: str = '') -> ExitCode:
+        """
+        Выводит содержащие `pattern` строки файла `filename`,
+        если он существует, в поток `out` и возвращает `SUCCESS`,
+        если выведена хотя бы одна строка.
+        В противном случае сообщает об ошибке в поток `err`
+        и возвращает `FAIL`.
+        """
+
+        try:
+            with open(filename) as fd:
+                return self.grep(pattern,
+                                 case_insensitive, whole_word, context,
+                                 fd, out, prefix)
+        except IOError:
+            print(f'grep: {filename}: No such file or directory', file=err)
+            return FAIL
+
+    def __call__(self,
+                 inp: TextIO,
+                 out: TextIO,
+                 err: TextIO,
+                 args: List[str]) -> ExitCode:
+        case_insensitive = False
+        whole_word = False
+        context = 0
+
+        if '-i' in args:
+            case_insensitive = True
+            args.remove('-i')
+
+        if '-w' in args:
+            whole_word = True
+            args.remove('-w')
+
+        if '-A' in args:
+            index = args.index('-A')
+            if index + 1 >= len(args) or not args[index + 1].isdigit():
+                print('grep: option -A requires a numeric argument',
+                      file=err)
+                return FAIL
+            context = int(args[index + 1])
+            del args[index:index+2]
+
+        if not args:
+            print('grep: missing pattern', file=err)
+            return FAIL
+        pattern = args.pop(0)
+
+        if not args:
+            return self.grep(pattern,
+                             case_insensitive, whole_word, context,
+                             inp, out)
+
+        if len(args) == 1:
+            filename = args[0]
+            return self.grep_file(pattern,
+                                  case_insensitive, whole_word, context,
+                                  filename, out, err)
+
+        exitCode = SUCCESS
+
+        for filename in args:
+            ret = self.grep_file(pattern,
+                                 case_insensitive, whole_word, context,
+                                 filename, out, err,
+                                 f'{filename}:')
+            exitCode = max(exitCode, ret)
+
+        return exitCode
 
 
 class Exit(Command):

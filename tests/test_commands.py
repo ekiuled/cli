@@ -36,3 +36,34 @@ def test_external(pytestconfig):
     capmanager.suspend_global_capture(in_=True)
     assert run('flake8') == SUCCESS
     capmanager.resume_global_capture()
+
+
+def test_grep_i(capsys):
+    assert run('grep -i DEF cli/interpreter.py | wc') == SUCCESS
+    out, err = capsys.readouterr()
+    assert out.startswith('3\t')
+    assert err == ''
+
+    assert run('grep DEF cli/interpreter.py') == FAIL
+    out, err = capsys.readouterr()
+    assert out == ''
+    assert err == ''
+
+
+def test_grep_w(capsys):
+    assert run('grep grep cli/commands.py | wc') == SUCCESS
+    out, err = capsys.readouterr()
+    count1, *_ = map(int, out.split())
+    assert err == ''
+    assert run('grep -w grep cli/commands.py | wc') == SUCCESS
+    out, err = capsys.readouterr()
+    count2, *_ = map(int, out.split())
+    assert err == ''
+    assert count1 > count2
+
+
+def test_grep_A(capsys):
+    assert run('grep \'def .*ca\' -A 3 cli/commands.py kek') == FAIL
+    out, err = capsys.readouterr()
+    assert out.startswith('cli/commands.py')
+    assert err == 'grep: kek: No such file or directory\n'
