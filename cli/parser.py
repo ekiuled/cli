@@ -1,9 +1,9 @@
-from typing import NamedTuple, Dict, Generator
+from typing import NamedTuple, Dict, Generator, List
 import re
 
 
 CommandArgs = NamedTuple('CommandArgs',
-                         [('command', str), ('args', list[str])])
+                         [('command', str), ('args', List[str])])
 
 
 def variable_expansion(word: str, environment: Dict[str, str]) -> str:
@@ -41,7 +41,7 @@ def name_args(command: str, environment: Dict[str, str]) -> CommandArgs:
     return CommandArgs(name, args)
 
 
-def parse(line: str, environment: Dict[str, str]) -> list[CommandArgs]:
+def parse(line: str, environment: Dict[str, str]) -> List[CommandArgs]:
     """Парсит строку в список команд и их аргументов."""
 
     commands = filter(None, re.split(r'\s+\|\s+', line.strip()))

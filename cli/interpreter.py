@@ -1,5 +1,6 @@
 from cli.commands import (ExitCode, SUCCESS,
-                          Command, Cat, Echo, Wc, Pwd, Grep, Exit, Cd, Ls, External)
+                          Command, Cat, Echo, Wc, Pwd, Grep, Exit,
+                          Cd, Ls, External)
 from cli.parser import parse
 from typing import TextIO, List
 import sys
