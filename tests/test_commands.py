@@ -67,3 +67,70 @@ def test_grep_A(capsys):
     out, err = capsys.readouterr()
     assert out.startswith('cli/commands.py')
     assert err == 'grep: kek: No such file or directory\n'
+
+
+def test_cd(capsys):
+    assert run('cd whatever') == FAIL
+    out, err = capsys.readouterr()
+    assert out == ''
+    assert err == 'cd: whatever: No such file or directory\n'
+
+    assert run('cd cli') == SUCCESS
+    out, err = capsys.readouterr()
+    assert out == ''
+    assert err == ''
+    run('pwd')
+    out, err = capsys.readouterr()
+    assert out.endswith('cli\n')
+    assert err == ''
+
+    assert run('cd .') == SUCCESS
+    out, err = capsys.readouterr()
+    assert out == ''
+    assert err == ''
+    run('pwd')
+    out, err = capsys.readouterr()
+    assert out.endswith('cli\n')
+    assert err == ''
+
+    assert run('cd ..') == SUCCESS
+    out, err = capsys.readouterr()
+    assert out == ''
+    assert err == ''
+    run('pwd')
+    out, err = capsys.readouterr()
+    assert out.endswith('cli\n')
+    assert err == ''
+
+    assert run('cd ~') == SUCCESS
+    out, err = capsys.readouterr()
+    assert out == ''
+    assert err == ''
+    run('pwd')
+    out, err = capsys.readouterr()
+    assert out.startswith('/home')
+    assert err == ''
+
+
+def test_ls(capsys):
+    assert run('ls whatever') == FAIL
+    out, err = capsys.readouterr()
+    assert out == ''
+    assert err == 'ls: whatever: No such file or directory\n'
+
+    assert run('ls') == SUCCESS
+    out, err = capsys.readouterr()
+    assert out.startswith('.coverage\n.git\n.github')
+    assert out.endswith('cli\nsetup.py\ntests\n')
+    assert err == ''
+
+    assert run('ls .') == SUCCESS
+    out, err = capsys.readouterr()
+    assert out.startswith('.coverage\n.git\n.github')
+    assert out.endswith('cli\nsetup.py\ntests\n')
+    assert err == ''
+
+    assert run('ls cli') == SUCCESS
+    out, err = capsys.readouterr()
+    assert out == '__init__.py\n__main__.py\n__pycache__\ncommands.py\ninterpreter.py\nparser.py\n'
+    assert err == ''

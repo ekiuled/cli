@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
+from os.path import expanduser
 from typing import TextIO, NewType, Tuple, List
 import sys
-from os import getcwd
+from os import getcwd, chdir, listdir
 import subprocess
 import re
-
 
 ExitCode = NewType('ExitCode', int)
 SUCCESS = ExitCode(0)
@@ -256,7 +256,7 @@ class Grep(Command):
                       file=err)
                 return FAIL
             context = int(args[index + 1])
-            del args[index:index+2]
+            del args[index:index + 2]
 
         if not args:
             print('grep: missing pattern', file=err)
@@ -295,6 +295,75 @@ class Exit(Command):
                  err: TextIO,
                  args: List[str]) -> ExitCode:
         sys.exit()
+
+
+class Cd(Command):
+    """Переходит в нужную директорию."""
+
+    def cd(self,
+           path: str,
+           err: TextIO) -> ExitCode:
+        """Переходит в директорию `path`."""
+
+        try:
+            chdir(path)
+            return SUCCESS
+        except FileNotFoundError:
+            print(f'cd: {path}: No such file or directory', file=err)
+            return FAIL
+
+    def __call__(self,
+                 inp: TextIO,
+                 out: TextIO,
+                 err: TextIO,
+                 args: List[str]) -> ExitCode:
+        if not args:
+            self.cd(expanduser("~"), out)
+            return SUCCESS
+
+        if len(args) > 1:
+            print('cd: too many arguments', file=err)
+            return FAIL
+
+        path = args[0]
+
+        if path == '~':
+            path = expanduser("~")
+
+        exitCode = self.cd(path, err)
+        return exitCode
+
+
+class Ls(Command):
+    """Печатает содержимое директории."""
+
+    def ls(self,
+           path: str,
+           out: TextIO,
+           err: TextIO) -> ExitCode:
+        """Печатает список файлов и директорий в директории `path`."""
+
+        try:
+            list_dir = sorted(listdir(path))
+            print("\n".join(list_dir), file=out)
+            return SUCCESS
+        except FileNotFoundError:
+            print(f'ls: {path}: No such file or directory', file=err)
+            return FAIL
+
+    def __call__(self,
+                 inp: TextIO,
+                 out: TextIO,
+                 err: TextIO,
+                 args: List[str]) -> ExitCode:
+        if args and len(args) > 1:
+            print('ls: too many arguments', file=err)
+            return FAIL
+
+        path = args[0] if args else "."
+
+        exitCode = self.ls(path, out, err)
+        return exitCode
 
 
 class External(Command):
