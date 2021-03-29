@@ -75,36 +75,45 @@ def test_ls(capsys):
     assert out == ''
     assert err == 'ls: whatever: No such file or directory\n'
 
-    assert run('ls') == SUCCESS
-    out, err = capsys.readouterr()
-    assert out.endswith('cli\nsetup.py\ntests\n')
-    assert err == ''
-
-    assert run('ls .') == SUCCESS
-    out, err = capsys.readouterr()
-    assert out.endswith('cli\nsetup.py\ntests\n')
-    assert err == ''
-
     assert run('ls cli') == SUCCESS
     out, err = capsys.readouterr()
     assert out.startswith('__init__.py\n__main__.py\n__pycache__\n')
     assert out.endswith('commands.py\ninterpreter.py\nparser.py\n')
     assert err == ''
 
+    run('cd cli')
+    assert run('ls') == SUCCESS
+    out, err = capsys.readouterr()
+    assert out.startswith('__init__.py\n__main__.py\n__pycache__\n')
+    assert out.endswith('commands.py\ninterpreter.py\nparser.py\n')
+    assert err == ''
+
+    assert run('ls .') == SUCCESS
+    out, err = capsys.readouterr()
+    assert out.startswith('__init__.py\n__main__.py\n__pycache__\n')
+    assert out.endswith('commands.py\ninterpreter.py\nparser.py\n')
+    assert err == ''
+
+    run('cd ..')
+
 
 def test_cd(capsys):
+    run('pwd')
+    out, _ = capsys.readouterr()
+    init_dir = out
+
     assert run('cd whatever') == FAIL
     out, err = capsys.readouterr()
     assert out == ''
     assert err == 'cd: whatever: No such file or directory\n'
 
-    assert run('cd cli') == SUCCESS
+    assert run('cd tests') == SUCCESS
     out, err = capsys.readouterr()
     assert out == ''
     assert err == ''
     run('pwd')
     out, err = capsys.readouterr()
-    assert out.endswith('cli\n')
+    assert out.endswith('tests\n')
     assert err == ''
 
     assert run('cd .') == SUCCESS
@@ -113,16 +122,7 @@ def test_cd(capsys):
     assert err == ''
     run('pwd')
     out, err = capsys.readouterr()
-    assert out.endswith('cli\n')
-    assert err == ''
-
-    assert run('cd ..') == SUCCESS
-    out, err = capsys.readouterr()
-    assert out == ''
-    assert err == ''
-    run('pwd')
-    out, err = capsys.readouterr()
-    assert out.endswith('cli\n')
+    assert out.endswith('tests\n')
     assert err == ''
 
     assert run('cd ~') == SUCCESS
@@ -132,4 +132,22 @@ def test_cd(capsys):
     run('pwd')
     out, err = capsys.readouterr()
     assert out.startswith('/home')
+    assert err == ''
+
+    assert run('cd ..') == SUCCESS
+    out, err = capsys.readouterr()
+    assert out == ''
+    assert err == ''
+    run('pwd')
+    out, err = capsys.readouterr()
+    assert out.startswith('/home')
+    assert err == ''
+
+    assert run('cd ' + init_dir) == SUCCESS
+    out, err = capsys.readouterr()
+    assert out == ''
+    assert err == ''
+    run('pwd')
+    out, err = capsys.readouterr()
+    assert out.endswith('/cli\n')
     assert err == ''
