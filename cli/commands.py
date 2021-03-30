@@ -345,7 +345,7 @@ class Ls(Command):
         """Печатает список файлов и директорий в директории `path`."""
 
         try:
-            list_dir = sorted(listdir(path))
+            list_dir = sorted(listdir(path), key=lambda s: s.lower())
             print("\n".join(list_dir), file=out)
             return SUCCESS
         except FileNotFoundError:
@@ -362,6 +362,8 @@ class Ls(Command):
             return FAIL
 
         path = args[0] if args else "."
+        if path == '~':
+            path = expanduser("~")
 
         exitCode = self.ls(path, out, err)
         return exitCode
